@@ -1,81 +1,92 @@
-from pathlib import Path
+from fastapi import FastAPI, Depends
+from dotenv import load_dotenv
 
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+load_dotenv()
+from fastapi.middleware.cors import CORSMiddleware
 
+from . import models
 from .database import Base, engine
-from .routes.auth import router as auth_router
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+from .routes.auth import (
+    router as auth_router,
+    get_current_user
+)
+
+from .routes.chat import (
+    router as chat_router
+)
+
+
+# ===========================
+# DATABASE INITIALIZATION
+# ===========================
+
+Base.metadata.create_all(
+    bind=engine
+)
+
+
+# ===========================
+# FASTAPI APP
+# ===========================
 
 app = FastAPI(
-    title="MedAssist AI",
-    description="AI Medical Assistant Chatbot",
+    title="Medical Assistant AI Chatbot",
     version="1.0.0"
 )
 
-# Authentication Routes
-app.include_router(auth_router)
 
-# Frontend folder
-BASE_DIR = Path(__file__).resolve().parent.parent
-FRONTEND_DIR = BASE_DIR / "frontend"
+# ===========================
+# CORS CONFIGURATION
+# ===========================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-# ---------------- HOME ----------------
+
+# ===========================
+# ROUTERS
+# ===========================
+
+app.include_router(
+    auth_router
+)
+
+app.include_router(
+    chat_router
+)
+
+
+
+# ===========================
+# HOME API
+# ===========================
 
 @app.get("/")
 def home():
-    return FileResponse(FRONTEND_DIR / "index.html")
 
-
-# ---------------- INDEX ----------------
-
-@app.get("/index.html")
-def index():
-    return FileResponse(FRONTEND_DIR / "index.html")
-
-
-# ---------------- LOGIN ----------------
-
-@app.get("/login.html")
-def login():
-    return FileResponse(FRONTEND_DIR / "login.html")
-
-
-# ---------------- REGISTER ----------------
-
-@app.get("/register.html")
-def register():
-    return FileResponse(FRONTEND_DIR / "register.html")
-
-
-# ---------------- DASHBOARD ----------------
-
-@app.get("/dashboard.html")
-def dashboard():
-    return FileResponse(FRONTEND_DIR / "dashboard.html")
-
-
-# ---------------- CHAT ----------------
-
-@app.get("/chat.html")
-def chat():
-    return FileResponse(FRONTEND_DIR / "chat.html")
-
-
-# ---------------- CSS ----------------
-
-@app.get("/style.css")
-def style():
-    return FileResponse(FRONTEND_DIR / "style.css")
-
-
-# ---------------- HEALTH ----------------
-
-@app.get("/health")
-def health():
     return {
-        "status": "healthy"
+        "message": "Medical Assistant AI Backend Running"
+    }
+
+
+
+# ===========================
+# PROFILE API (JWT TEST)
+# ===========================
+
+@app.get("/profile")
+def profile(
+    user = Depends(get_current_user)
+):
+
+    return {
+        "message": "Profile Access Successful",
+        "user": user
     }
