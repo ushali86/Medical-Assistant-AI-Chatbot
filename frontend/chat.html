@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>MedAssist AI | Chat</title>
+
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+>
+
+<link rel="stylesheet" href="style.css">
+```
+
+</head>
+
+<body class="chat-page">
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar bg-white border-bottom shadow-sm">
+    <div class="container-fluid px-3 px-md-4">
+
+```
+    <a
+        href="index.html"
+        class="navbar-brand fw-bold text-primary"
+    >
+        <i class="bi bi-heart-pulse-fill me-2"></i>
+        MedAssist AI
+    </a>
+
+    <div class="d-flex align-items-center gap-2">
+
+        <select
+            id="language"
+            class="form-select form-select-sm language-select"
+        >
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+        </select>
+
+        <button
+            class="btn btn-outline-danger btn-sm"
+            onclick="logout()"
+        >
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="d-none d-md-inline">Logout</span>
+        </button>
+
+    </div>
+
+</div>
+```
+
+</nav>
+
+<!-- ================= MAIN ================= -->
+
+<div class="container-fluid">
+
+```
+<div class="row chat-layout">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="col-lg-3 col-xl-2 chat-sidebar bg-white border-end">
+
+        <div class="p-3">
+
+            <button
+                class="btn btn-primary w-100 mb-4"
+                onclick="newChat()"
+            >
+                <i class="bi bi-plus-lg me-2"></i>
+                New Chat
+            </button>
+
+
+            <h6 class="text-secondary small fw-bold">
+                QUICK ACTIONS
+            </h6>
+
+            <button
+                class="quick-action"
+                onclick="quickQuestion('I have a headache')"
+            >
+                <i class="bi bi-headset"></i>
+                Common Symptoms
+            </button>
+
+            <button
+                class="quick-action"
+                onclick="quickQuestion('I need a doctor')"
+            >
+                <i class="bi bi-person-vcard"></i>
+                Find a Doctor
+            </button>
+
+            <button
+                class="quick-action"
+                onclick="quickQuestion('I need help with my medicine')"
+            >
+                <i class="bi bi-capsule"></i>
+                Medicine Help
+            </button>
+
+            <button
+                class="quick-action"
+                onclick="quickQuestion('Give me a wellness suggestion')"
+            >
+                <i class="bi bi-person-arms-up"></i>
+                Wellness
+            </button>
+
+
+            <hr class="my-4">
+
+
+            <h6 class="text-secondary small fw-bold">
+                RECENT CHATS
+            </h6>
+
+            <div id="recentChats">
+
+                <button class="recent-chat">
+                    <i class="bi bi-chat-left-text"></i>
+                    Health consultation
+                </button>
+
+                <button class="recent-chat">
+                    <i class="bi bi-chat-left-text"></i>
+                    General health question
+                </button>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= CHAT AREA ================= -->
+
+    <main class="col-lg-9 col-xl-10 chat-main">
+
+        <!-- Header -->
+
+        <div class="chat-header">
+
+            <div class="ai-profile">
+
+                <div class="ai-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+
+                <div>
+                    <h5 class="mb-0 fw-bold">
+                        MedAssist AI
+                    </h5>
+
+                    <small class="text-success">
+                        <span class="online-dot"></span>
+                        AI Assistant
+                    </small>
+                </div>
+
+            </div>
+
+            <button
+                class="btn btn-light"
+                onclick="clearChat()"
+                title="Clear conversation"
+            >
+                <i class="bi bi-trash"></i>
+            </button>
+
+        </div>
+
+
+        <!-- Messages -->
+
+        <div
+            id="chatMessages"
+            class="chat-messages"
+        >
+
+            <div class="message ai-message">
+
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+
+                <div class="message-content">
+
+                    <strong>MedAssist AI</strong>
+
+                    <p class="mb-0 mt-1">
+                        Hello! 👋 I'm MedAssist AI.
+                        Tell me what you're experiencing,
+                        and I'll help you understand the next
+                        steps.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Disclaimer -->
+
+            <div class="medical-disclaimer">
+
+                <i class="bi bi-shield-check me-2"></i>
+
+                <span>
+                    MedAssist AI provides general health information
+                    and does not replace a qualified doctor.
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= INPUT ================= -->
+
+        <div class="chat-input-area">
+
+            <div
+                id="imagePreview"
+                class="image-preview d-none"
+            ></div>
+
+            <div class="input-wrapper">
+
+                <label
+                    for="imageInput"
+                    class="input-icon"
+                    title="Upload image"
+                >
+                    <i class="bi bi-paperclip"></i>
+                </label>
+
+                <input
+                    type="file"
+                    id="imageInput"
+                    accept="image/*"
+                    hidden
+                >
+
+                <input
+                    type="text"
+                    id="messageInput"
+                    class="form-control chat-input"
+                    placeholder="Describe your symptoms..."
+                    autocomplete="off"
+                >
+
+                <button
+                    class="input-icon"
+                    id="voiceButton"
+                    title="Voice input"
+                >
+                    <i class="bi bi-mic"></i>
+                </button>
+
+                <button
+                    class="send-button"
+                    onclick="sendMessage()"
+                    title="Send"
+                >
+                    <i class="bi bi-send-fill"></i>
+                </button>
+
+            </div>
+
+            <small class="text-muted d-block text-center mt-2">
+                For emergencies, contact your local emergency service
+                or seek immediate medical care.
+            </small>
+
+        </div>
+
+    </main>
+
+</div>
+```
+
+</div>
+
+<script>
+
+const messageInput =
+    document.getElementById("messageInput");
+
+const chatMessages =
+    document.getElementById("chatMessages");
+
+const imageInput =
+    document.getElementById("imageInput");
+
+const imagePreview =
+    document.getElementById("imagePreview");
+
+
+// ================= SEND MESSAGE =================
+
+function sendMessage() {
+
+    const message =
+        messageInput.value.trim();
+
+    if (message === "") {
+        return;
+    }
+
+    addUserMessage(message);
+
+    messageInput.value = "";
+
+    showTyping();
+
+    setTimeout(() => {
+
+        removeTyping();
+
+        addAIMessage(
+            "Thanks for sharing that. I'm currently being connected to the MedAssist AI medical assistant. In the next step, we'll connect this chat to the FastAPI AI backend."
+        );
+
+    }, 900);
+}
+
+
+// ================= ENTER KEY =================
+
+messageInput.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            sendMessage();
+        }
+    }
+);
+
+
+// ================= USER MESSAGE =================
+
+function addUserMessage(message) {
+
+    const wrapper =
+        document.createElement("div");
+
+    wrapper.className =
+        "message user-message";
+
+    wrapper.innerHTML = `
+        <div class="message-content">
+            <strong>You</strong>
+            <p class="mb-0 mt-1"></p>
+        </div>
+    `;
+
+    wrapper.querySelector("p").textContent =
+        message;
+
+    chatMessages.appendChild(wrapper);
+
+    scrollChat();
+}
+
+
+// ================= AI MESSAGE =================
+
+function addAIMessage(message) {
+
+    const wrapper =
+        document.createElement("div");
+
+    wrapper.className =
+        "message ai-message";
+
+    wrapper.innerHTML = `
+        <div class="message-avatar">
+            <i class="bi bi-robot"></i>
+        </div>
+
+        <div class="message-content">
+            <strong>MedAssist AI</strong>
+            <p class="mb-0 mt-1"></p>
+        </div>
+    `;
+
+    wrapper.querySelector("p").textContent =
+        message;
+
+    chatMessages.appendChild(wrapper);
+
+    scrollChat();
+}
+
+
+// ================= TYPING =================
+
+function showTyping() {
+
+    const typing =
+        document.createElement("div");
+
+    typing.id = "typing";
+
+    typing.className =
+        "message ai-message";
+
+    typing.innerHTML = `
+        <div class="message-avatar">
+            <i class="bi bi-robot"></i>
+        </div>
+
+        <div class="message-content typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `;
+
+    chatMessages.appendChild(typing);
+
+    scrollChat();
+}
+
+
+function removeTyping() {
+
+    const typing =
+        document.getElementById("typing");
+
+    if (typing) {
+        typing.remove();
+    }
+}
+
+
+// ================= QUICK QUESTION =================
+
+function quickQuestion(question) {
+
+    messageInput.value =
+        question;
+
+    sendMessage();
+}
+
+
+// ================= NEW CHAT =================
+
+function newChat() {
+
+    chatMessages.innerHTML = `
+        <div class="message ai-message">
+
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+
+            <div class="message-content">
+
+                <strong>MedAssist AI</strong>
+
+                <p class="mb-0 mt-1">
+                    Hello! 👋 How can I help you today?
+                </p>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+// ================= CLEAR CHAT =================
+
+function clearChat() {
+
+    if (
+        confirm(
+            "Are you sure you want to clear this conversation?"
+        )
+    ) {
+        newChat();
+    }
+}
+
+
+// ================= IMAGE UPLOAD =================
+
+imageInput.addEventListener(
+    "change",
+    function() {
+
+        const file =
+            imageInput.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const reader =
+            new FileReader();
+
+        reader.onload =
+            function(event) {
+
+                imagePreview.classList.remove(
+                    "d-none"
+                );
+
+                imagePreview.innerHTML = `
+                    <div class="uploaded-image">
+                        <img
+                            src="${event.target.result}"
+                            alt="Uploaded medical image"
+                        >
+
+                        <button
+                            onclick="removeImage()"
+                            type="button"
+                        >
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                `;
+            };
+
+        reader.readAsDataURL(file);
+    }
+);
+
+
+function removeImage() {
+
+    imageInput.value = "";
+
+    imagePreview.classList.add(
+        "d-none"
+    );
+
+    imagePreview.innerHTML = "";
+}
+
+
+// ================= SCROLL =================
+
+function scrollChat() {
+
+    chatMessages.scrollTop =
+        chatMessages.scrollHeight;
+}
+
+
+// ================= LOGOUT =================
+
+function logout() {
+
+    localStorage.removeItem(
+        "user_id"
+    );
+
+    window.location.href =
+        "login.html";
+}
+
+</script>
+
+</body>
+</html>
