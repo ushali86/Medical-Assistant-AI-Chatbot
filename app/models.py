@@ -7,7 +7,6 @@ from sqlalchemy import (
 )
 
 from sqlalchemy.orm import relationship
-
 from datetime import datetime
 
 from .database import Base
@@ -21,19 +20,9 @@ class User(Base):
 
     __tablename__ = "users"
 
+    id = Column(Integer, primary_key=True, index=True)
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        index=True
-    )
-
-
-    name = Column(
-        String,
-        nullable=False
-    )
-
+    name = Column(String, nullable=False)
 
     email = Column(
         String,
@@ -42,20 +31,15 @@ class User(Base):
         nullable=False
     )
 
-
     password = Column(
         String,
         nullable=False
     )
 
-
     created_at = Column(
         DateTime,
         default=datetime.utcnow
     )
-
-
-    # User -> Chat History
 
     chats = relationship(
         "ChatMessage",
@@ -64,15 +48,13 @@ class User(Base):
     )
 
 
-
 # ===========================
-# CHAT MESSAGE TABLE
+# CHAT TABLE
 # ===========================
 
 class ChatMessage(Base):
 
     __tablename__ = "chat_messages"
-
 
     id = Column(
         Integer,
@@ -80,35 +62,100 @@ class ChatMessage(Base):
         index=True
     )
 
-
     user_id = Column(
         Integer,
         ForeignKey("users.id"),
         nullable=False
     )
 
-
     user_message = Column(
         String,
         nullable=False
     )
-
 
     ai_response = Column(
         String,
         nullable=False
     )
 
-
     created_at = Column(
         DateTime,
         default=datetime.utcnow
     )
 
-
-    # Chat -> User
-
     user = relationship(
         "User",
         back_populates="chats"
+    )
+
+
+# ===========================
+# DOCTOR TABLE
+# ===========================
+
+class Doctor(Base):
+
+    __tablename__ = "doctors"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    full_name = Column(
+        String,
+        nullable=False
+    )
+
+    email = Column(
+        String,
+        unique=True,
+        index=True,
+        nullable=False
+    )
+
+    password = Column(
+        String,
+        nullable=False
+    )
+
+    specialization = Column(
+        String,
+        nullable=False
+    )
+
+    experience = Column(
+        Integer,
+        nullable=False
+    )
+
+    qualification = Column(
+        String,
+        nullable=False
+    )
+
+    hospital = Column(
+        String,
+        nullable=False
+    )
+
+    phone = Column(
+        String,
+        nullable=False
+    )
+
+    available_days = Column(
+        String,
+        nullable=True
+    )
+
+    available_time = Column(
+        String,
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
     )
